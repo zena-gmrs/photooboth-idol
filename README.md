@@ -1,1 +1,0 @@
-# photooboth-idol

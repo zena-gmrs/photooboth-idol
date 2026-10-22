@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HARU FILM x K-POP IDOL PHOTOBOOTH</title>
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+            display: ['Space Grotesk', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              pink: '#ff758c',
+              purple: '#ff7eb3',
+              lavender: '#e0c3fc',
+              blue: '#8ec5fc',
+              dark: '#12121e'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background: radial-gradient(circle at top left, #2b1055, #7597de, #0f0c1b);
+      min-height: 100vh;
+      color: #fff;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 999px; }
+
+    /* Flash Animation */
+    @keyframes cameraFlash {
+      0% { opacity: 0.95; }
+      100% { opacity: 0; }
+    }
+    .flash-effect {
+      animation: cameraFlash 0.4s ease-out forwards;
+    }
+
+    /* Filters CSS for Preview */
+    .filter-normal { filter: none; }
+    .filter-bw { filter: grayscale(100%) contrast(110%); }
+    .filter-warm { filter: sepia(30%) saturate(140%) hue-rotate(-10deg); }
+    .filter-y2k { filter: saturate(160%) contrast(105%) brightness(105%); }
+    .filter-cyber { filter: hue-rotate(290deg) saturate(150%) contrast(110%); }
+    .filter-sepia { filter: sepia(90%) contrast(90%); }
+
+    /* Custom Frame Backgrounds */
+    .bg-frame-white { background: #ffffff; color: #111; }
+    .bg-frame-pink { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%); color: #4a1525; }
+    .bg-frame-blue { background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%); color: #0c2a4a; }
+    .bg-frame-dark { background: #181824; color: #fff; }
+    .bg-frame-mint { background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%); color: #093829; }
+    .bg-frame-rainbow { background: linear-gradient(135deg, #ff9a9e, #fecfef, #a1c4fd, #84fab0); color: #222; }
+
+    .glow-box {
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+  </style>
+</head>
+<body class="p-3 sm:p-6 antialiased select-none">
+
+  <!-- Main Container -->
+  <div class="max-w-7xl mx-auto space-y-6">
+
+    <!-- Header / Navbar -->
+    <header class="flex flex-col sm:flex-row justify-between items-center gap-4 bg-white/10 backdrop-blur-md p-4 px-6 rounded-2xl border border-white/20 shadow-2xl">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-pink-500 to-purple-500 flex items-center justify-center shadow-lg shadow-pink-500/30">
+          <i data-lucide="camera" class="w-6 h-6 text-white"></i>
+        </div>
+        <div>
+          <h1 class="font-display font-bold text-xl sm:text-2xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-pink-300 via-purple-200 to-indigo-200">
+            HARU FILM <span class="text-xs px-2 py-0.5 rounded-full bg-pink-500/30 text-pink-200 border border-pink-400/30 font-sans uppercase">K-Pop Edition</span>
+          </h1>
+          <p class="text-xs text-purple-200/70">Photobooth bersama Karina (aespa) & Jang Wonyoung (IVE)</p>
+        </div>
+      </div>
+
+      <!-- Quick Action Badges -->
+      <div class="flex items-center gap-3 text-xs">
+        <div class="flex items-center gap-2 bg-black/30 px-3 py-1.5 rounded-full border border-white/10">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span class="text-gray-300 font-medium">Webcam Live</span>
+        </div>
+        <div class="hidden sm:flex items-center gap-2 bg-pink-500/20 px-3 py-1.5 rounded-full border border-pink-500/30 text-pink-200">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+          <span>2026 Korean Studio Edition</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Workspace Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- LEFT COLUMN: Live Camera Booth & Interactive Canvas Controls (7 Cols) -->
+      <div class="lg:col-span-7 flex flex-col gap-5">
+
+        <!-- Live Camera Container -->
+        <div class="relative bg-slate-900/80 rounded-3xl overflow-hidden border border-white/15 shadow-2xl glow-box group">
+          
+          <!-- Camera Feed Aspect Box (4:3) -->
+          <div id="booth-container" class="relative w-full aspect-[4/3] bg-black overflow-hidden flex items-center justify-center">
+            
+            <!-- Video Element -->
+            <video id="webcam" autoplay playsinline class="w-full h-full object-cover filter-normal transition-all duration-300 transform -scale-x-100"></video>
+
+            <!-- Video Loading / Placeholder -->
+            <div id="camera-loading" class="absolute inset-0 bg-slate-950 flex flex-col items-center justify-center gap-3 p-6 text-center">
+              <i data-lucide="camera-off" class="w-12 h-12 text-pink-400/60 animate-bounce"></i>
+              <p class="text-sm font-medium text-gray-300">Mengakses Kamera Webcam...</p>
+              <p class="text-xs text-gray-500 max-w-xs">Izinkan akses kamera pada browser kamu untuk mulai berfoto.</p>
+            </div>
+
+            <!-- DRAGGABLE / ROTATABLE IDOL OVERLAY STICKER -->
+            <div id="idol-wrapper" class="absolute cursor-move select-none touch-none top-1/4 left-1/4 z-20 group/overlay" style="width: 180px; transform: rotate(0deg);">
+              
+              <!-- Selection Box Border -->
+              <div class="absolute -inset-2 border-2 border-dashed border-pink-400/70 rounded-xl opacity-0 group-hover/overlay:opacity-100 transition-opacity pointer-events-none"></div>
+
+              <!-- Main Overlay Image -->
+              <img id="idol-overlay" src="k1.png" alt="Idol Overlay" class="w-full h-auto pointer-events-none drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)] transition-opacity duration-200" style="opacity: 0.95;">
+
+              <!-- On-Image Quick Control Handles (Only visible on hover) -->
+              <div class="absolute -top-3 -right-3 hidden group-hover/overlay:flex items-center gap-1 bg-black/80 backdrop-blur-md border border-white/20 rounded-full p-1 shadow-lg z-30">
+                <button id="btn-quick-rotate" title="Diputar" class="p-1 hover:text-pink-400 transition"><i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i></button>
+                <button id="btn-quick-flip" title="Cermin" class="p-1 hover:text-pink-400 transition"><i data-lucide="flip-horizontal" class="w-3.5 h-3.5"></i></button>
+              </div>
+            </div>
+
+            <!-- CAMERA FLASH EFFECT -->
+            <div id="camera-flash" class="absolute inset-0 bg-white pointer-events-none opacity-0 z-40"></div>
+
+            <!-- COUNTDOWN DISPLAY OVERLAY -->
+            <div id="countdown-overlay" class="absolute inset-0 bg-black/40 backdrop-blur-xs hidden flex-col items-center justify-center z-30">
+              <span id="countdown-text" class="font-display font-extrabold text-8xl sm:text-9xl text-white drop-shadow-[0_0_35px_rgba(255,117,140,0.8)] animate-pulse">3</span>
+              <p id="countdown-subtext" class="mt-2 text-sm text-pink-200 font-semibold uppercase tracking-wider bg-pink-600/60 px-4 py-1 rounded-full border border-pink-400/40">Bersiap Pose!</p>
+            </div>
+
+            <!-- Top Overlay Badges -->
+            <div class="absolute top-4 left-4 z-10 flex items-center gap-2">
+              <span id="badge-shot-count" class="bg-black/60 backdrop-blur-md border border-white/20 text-xs text-pink-300 font-medium px-3 py-1 rounded-full">
+                Single Photo
+              </span>
+            </div>
+          </div>
+
+          <!-- Live Controls Bar (Below Camera) -->
+          <div class="p-4 bg-slate-900/90 border-t border-white/10 flex flex-wrap items-center justify-between gap-3">
+            
+            <!-- Camera & Mirror Toggle -->
+            <div class="flex items-center gap-2">
+              <button id="btn-toggle-mirror" class="flex items-center gap-1.5 text-xs bg-white/10 hover:bg-white/20 px-3 py-2 rounded-xl border border-white/10 transition">
+                <i data-lucide="flip-horizontal" class="w-4 h-4 text-pink-300"></i>
+                <span>Mirror Video</span>
+              </button>
+              <button id="btn-toggle-camera" class="flex items-center gap-1.5 text-xs bg-white/10 hover:bg-white/20 px-3 py-2 rounded-xl border border-white/10 transition">
+                <i data-lucide="refresh-cw" class="w-4 h-4 text-purple-300"></i>
+                <span>Reset Pose</span>
+              </button>
+            </div>
+
+            <!-- Primary Trigger Buttons -->
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+              <button id="btn-snap-single" class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold px-5 py-2.5 rounded-xl shadow-lg shadow-pink-500/25 active:scale-95 transition">
+                <i data-lucide="camera" class="w-4 h-4"></i>
+                <span>Snap (1 Foto)</span>
+              </button>
+              <button id="btn-snap-4cut" class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:opacity-90 text-white font-bold px-5 py-2.5 rounded-xl shadow-lg shadow-purple-500/25 active:scale-95 transition">
+                <i data-lucide="grid" class="w-4 h-4"></i>
+                <span>Shoot 4-Cut Strip</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- IDOL & OVERLAY CONTROLS TAB -->
+        <div class="bg-white/10 backdrop-blur-md rounded-2xl p-4 sm:p-5 border border-white/15 space-y-4 shadow-xl">
+          <div class="flex items-center justify-between">
+            <h2 class="font-bold text-sm sm:text-base flex items-center gap-2 text-pink-200">
+              <i data-lucide="sparkles" class="w-4 h-4 text-pink-400"></i>
+              <span>Pengaturan Idol Cutout</span>
+            </h2>
+            <span class="text-xs text-gray-300">Geser / Drag idol di layar</span>
+          </div>
+
+          <!-- Idol Selector Tabs -->
+          <div class="grid grid-cols-2 gap-3">
+            <button id="tab-karina" onclick="selectIdol('karina')" class="flex items-center justify-center gap-2.5 p-3 rounded-xl border border-pink-500/50 bg-pink-500/20 text-white font-medium text-xs sm:text-sm transition hover:bg-pink-500/30">
+              <div class="w-6 h-6 rounded-full bg-pink-400/40 flex items-center justify-center font-bold text-xs">K</div>
+              <div class="text-left">
+                <p class="font-bold">Karina</p>
+                <p class="text-[10px] text-pink-200/80">aespa • k1.png</p>
+              </div>
+            </button>
+            <button id="tab-wonyoung" onclick="selectIdol('wonyoung')" class="flex items-center justify-center gap-2.5 p-3 rounded-xl border border-white/10 bg-white/5 text-gray-300 font-medium text-xs sm:text-sm transition hover:bg-white/10">
+              <div class="w-6 h-6 rounded-full bg-purple-400/40 flex items-center justify-center font-bold text-xs">W</div>
+              <div class="text-left">
+                <p class="font-bold">Jang Wonyoung</p>
+                <p class="text-[10px] text-gray-400">IVE • w1.png</p>
+              </div>
+            </button>
+          </div>
+
+          <!-- Fine Tuning Sliders -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+            <!-- Scale Slider -->
+            <div class="space-y-1">
+              <div class="flex justify-between text-xs text-gray-300">
+                <label>Ukuran / Size</label>
+                <span id="val-scale">180px</span>
+              </div>
+                <input type="range" id="slider-scale" min="80" max="800" value="180" class="w-full accent-pink-500 bg-white/10 rounded-lg h-2 cursor-pointer">            </div>
+
+            <!-- Rotation Slider -->
+            <div class="space-y-1">
+              <div class="flex justify-between text-xs text-gray-300">
+                <label>Rotasi</label>
+                <span id="val-rotate">0°</span>
+              </div>
+              <input type="range" id="slider-rotate" min="-180" max="180" value="0" class="w-full accent-purple-500 bg-white/10 rounded-lg h-2 cursor-pointer">
+            </div>
+
+            <!-- Opacity Slider -->
+            <div class="space-y-1">
+              <div class="flex justify-between text-xs text-gray-300">
+                <label>Transparansi</label>
+                <span id="val-opacity">95%</span>
+              </div>
+              <input type="range" id="slider-opacity" min="20" max="100" value="95" class="w-full accent-indigo-500 bg-white/10 rounded-lg h-2 cursor-pointer">
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT COLUMN: Photostrip Customization, Filters & Canvas Output (5 Cols) -->
+      <div class="lg:col-span-5 flex flex-col gap-5">
+
+        <!-- Customization Controls Panel -->
+        <div class="bg-white/10 backdrop-blur-md rounded-2xl p-4 sm:p-5 border border-white/15 space-y-4 shadow-xl">
+          <h2 class="font-bold text-sm sm:text-base flex items-center gap-2 text-purple-200">
+            <i data-lucide="sliders" class="w-4 h-4 text-purple-400"></i>
+            <span>Desain Photostrip</span>
+          </h2>
+
+          <!-- Frame Color Selector -->
+          <div class="space-y-2">
+            <label class="text-xs text-gray-300 font-medium">Warna Bingkai (Frame Theme):</label>
+            <div class="grid grid-cols-6 gap-2">
+              <button onclick="setFrameTheme('white')" title="Classic White" class="h-8 rounded-lg bg-white border-2 border-pink-400 focus:ring-2 focus:ring-pink-400 transition"></button>
+              <button onclick="setFrameTheme('pink')" title="Baby Pink" class="h-8 rounded-lg bg-gradient-to-r from-pink-300 to-pink-200 border border-white/30 transition hover:scale-105"></button>
+              <button onclick="setFrameTheme('blue')" title="Pastel Blue" class="h-8 rounded-lg bg-gradient-to-r from-blue-300 to-cyan-200 border border-white/30 transition hover:scale-105"></button>
+              <button onclick="setFrameTheme('mint')" title="Mint Green" class="h-8 rounded-lg bg-gradient-to-r from-emerald-200 to-teal-200 border border-white/30 transition hover:scale-105"></button>
+              <button onclick="setFrameTheme('dark')" title="Cyber Black" class="h-8 rounded-lg bg-slate-900 border border-white/30 transition hover:scale-105"></button>
+              <button onclick="setFrameTheme('rainbow')" title="Y2K Gradient" class="h-8 rounded-lg bg-gradient-to-r from-pink-400 via-purple-300 to-blue-300 border border-white/30 transition hover:scale-105"></button>
+            </div>
+          </div>
+
+          <!-- Filter Preset Selector -->
+          <div class="space-y-2">
+            <label class="text-xs text-gray-300 font-medium">Filter Warna Foto:</label>
+            <select id="select-filter" class="w-full bg-slate-900/80 border border-white/20 rounded-xl px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-pink-400">
+              <option value="normal">✨ Normal (Original Live)</option>
+              <option value="bw">🖤 Vintage B&W (Monochrome)</option>
+              <option value="y2k">💖 Y2K Soft Glow (Pop)</option>
+              <option value="cyber">🔮 Cyber Pink Glow</option>
+              <option value="warm">🍂 Warm Film Studio</option>
+              <option value="sepia">☕ Classic Sepia</option>
+            </select>
+          </div>
+
+          <!-- Header & Stamp Input -->
+          <div class="grid grid-cols-2 gap-3">
+            <div class="space-y-1">
+              <label class="text-xs text-gray-300">Judul Header</label>
+              <input type="text" id="input-header" value="HARU FILM x AESPA" class="w-full bg-slate-900/80 border border-white/20 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-pink-400">
+            </div>
+            <div class="space-y-1">
+              <label class="text-xs text-gray-300">Tanggal / Stamp</label>
+              <input type="text" id="input-date" value="2026.10.22" class="w-full bg-slate-900/80 border border-white/20 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-pink-400">
+            </div>
+          </div>
+
+          <!-- Sticker Stamps Row -->
+          <div class="space-y-1.5">
+            <label class="text-xs text-gray-300">Tambah Sticker Stamp di Frame:</label>
+            <div class="flex items-center gap-2">
+              <button onclick="addSticker('💖')" class="px-2.5 py-1 bg-white/10 hover:bg-white/20 rounded-lg text-sm border border-white/10">💖</button>
+              <button onclick="addSticker('✨')" class="px-2.5 py-1 bg-white/10 hover:bg-white/20 rounded-lg text-sm border border-white/10">✨</button>
+              <button onclick="addSticker('🎀')" class="px-2.5 py-1 bg-white/10 hover:bg-white/20 rounded-lg text-sm border border-white/10">🎀</button>
+              <button onclick="addSticker('⭐')" class="px-2.5 py-1 bg-white/10 hover:bg-white/20 rounded-lg text-sm border border-white/10">⭐</button>
+              <button onclick="addSticker('🦋')" class="px-2.5 py-1 bg-white/10 hover:bg-white/20 rounded-lg text-sm border border-white/10">🦋</button>
+              <button onclick="clearStickers()" class="px-2 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-300 rounded-lg text-xs ml-auto">Clear</button>
+            </div>
+            <p id="sticker-display" class="text-xs text-pink-300 font-mono pt-1">Stickers: ✨ 💖</p>
+          </div>
+        </div>
+
+        <!-- PHOTOSTRIP PREVIEW AREA -->
+        <div class="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/15 flex flex-col items-center justify-center space-y-4 shadow-xl">
+          <div class="w-full flex items-center justify-between">
+            <span class="text-xs font-bold text-gray-300 uppercase tracking-wider">Preview Result</span>
+            <span id="preview-badge" class="text-[10px] bg-purple-500/30 text-purple-200 px-2 py-0.5 rounded-full border border-purple-400/30">Ready to Capture</span>
+          </div>
+
+          <!-- Photostrip Paper Container (Vertical 4-Cut or Single) -->
+          <div id="photostrip-paper" class="bg-frame-white p-3.5 rounded-xl shadow-2xl transition-all duration-300 w-48 sm:w-56 text-center space-y-2.5">
+            <!-- Header Stamp -->
+            <div id="strip-header" class="font-display font-extrabold text-[11px] tracking-tight text-center uppercase border-b border-current/10 pb-1">
+              HARU FILM x AESPA
+            </div>
+
+            <!-- 4 Photos Grid Slot -->
+            <div id="strip-photos-grid" class="space-y-2">
+              <div class="aspect-[4/3] bg-gray-200/80 rounded-lg overflow-hidden flex items-center justify-center text-gray-400 text-[10px] italic border border-black/5 slot-img">Foto 1</div>
+              <div class="aspect-[4/3] bg-gray-200/80 rounded-lg overflow-hidden flex items-center justify-center text-gray-400 text-[10px] italic border border-black/5 slot-img">Foto 2</div>
+              <div class="aspect-[4/3] bg-gray-200/80 rounded-lg overflow-hidden flex items-center justify-center text-gray-400 text-[10px] italic border border-black/5 slot-img">Foto 3</div>
+              <div class="aspect-[4/3] bg-gray-200/80 rounded-lg overflow-hidden flex items-center justify-center text-gray-400 text-[10px] italic border border-black/5 slot-img">Foto 4</div>
+            </div>
+
+            <!-- Footer Date & Stickers -->
+            <div class="pt-1 flex flex-col items-center gap-0.5">
+              <div id="strip-stickers" class="text-xs">✨ 💖</div>
+              <div id="strip-footer-date" class="font-mono text-[9px] opacity-70 tracking-widest">
+                2026.10.22
+              </div>
+            </div>
+          </div>
+
+          <!-- Export Actions -->
+          <div class="w-full grid grid-cols-2 gap-2 pt-2">
+            <button id="btn-download" disabled class="flex items-center justify-center gap-2 bg-pink-500 hover:bg-pink-600 disabled:opacity-40 text-white font-bold py-2.5 px-3 rounded-xl text-xs transition shadow-lg shadow-pink-500/20">
+              <i data-lucide="download" class="w-4 h-4"></i>
+              <span>Download PNG</span>
+            </button>
+            <button id="btn-copy" disabled class="flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 disabled:opacity-40 text-white font-medium py-2.5 px-3 rounded-xl text-xs border border-white/15 transition">
+              <i data-lucide="copy" class="w-4 h-4"></i>
+              <span>Salin Gambar</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Hidden High-Res Canvas for Final Export Generation -->
+  <canvas id="export-canvas" class="hidden"></canvas>
+
+  <script>
+    // Lucide Icons Initialization
+    lucide.createIcons();
+
+    // App State Configuration
+    const state = {
+      selectedIdol: 'karina',
+      idolScale: 180,
+      idolRotate: 0,
+      idolOpacity: 0.95,
+      idolFlipped: false,
+      isMirror: true,
+      currentFilter: 'normal',
+      frameTheme: 'white',
+      stickers: ['✨', '💖'],
+      capturedPhotos: [], // Stores HTMLCanvasElement snapshots
+      isShooting: false
+    };
+
+    // Fallback Vector SVG Avatars if Local Image is missing
+    const IDOL_FALLBACKS = {
+      karina: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="400" viewBox="0 0 300 400"><defs><linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="%23ff758c"/><stop offset="100%" stop-color="%23ff7eb3"/></linearGradient></defs><rect width="100%" height="100%" rx="30" fill="none"/><path d="M150 90 C120 90 95 115 95 150 C95 190 125 210 150 250 C175 210 205 190 205 150 C205 115 180 90 150 90 Z" fill="url(%23g1)" opacity="0.85"/><circle cx="150" cy="135" r="30" fill="%23fff" opacity="0.9"/><text x="150" y="310" font-family="sans-serif" font-weight="bold" font-size="22" fill="%23fff" text-anchor="middle">KARINA (aespa)</text></svg>`,
+      wonyoung: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="400" viewBox="0 0 300 400"><defs><linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="%238ec5fc"/><stop offset="100%" stop-color="%23e0c3fc"/></linearGradient></defs><rect width="100%" height="100%" rx="30" fill="none"/><path d="M150 90 C120 90 95 115 95 150 C95 190 125 210 150 250 C175 210 205 190 205 150 C205 115 180 90 150 90 Z" fill="url(%23g2)" opacity="0.85"/><circle cx="150" cy="135" r="30" fill="%23fff" opacity="0.9"/><text x="150" y="310" font-family="sans-serif" font-weight="bold" font-size="20" fill="%23fff" text-anchor="middle">WONYOUNG (IVE)</text></svg>`
+    };
+
+    const IDOL_PATHS = {
+      karina: 'k3.png',
+      wonyoung: 'w1.png'
+    };
+
+    // DOM Elements
+    const video = document.getElementById('webcam');
+    const cameraLoading = document.getElementById('camera-loading');
+    const idolWrapper = document.getElementById('idol-wrapper');
+    const idolOverlay = document.getElementById('idol-overlay');
+    const boothContainer = document.getElementById('booth-container');
+    const countdownOverlay = document.getElementById('countdown-overlay');
+    const countdownText = document.getElementById('countdown-text');
+    const countdownSubtext = document.getElementById('countdown-subtext');
+    const cameraFlash = document.getElementById('camera-flash');
+    const exportCanvas = document.getElementById('export-canvas');
+
+    // Controls DOM
+    const sliderScale = document.getElementById('slider-scale');
+    const sliderRotate = document.getElementById('slider-rotate');
+    const sliderOpacity = document.getElementById('slider-opacity');
+    const valScale = document.getElementById('val-scale');
+    const valRotate = document.getElementById('val-rotate');
+    const valOpacity = document.getElementById('val-opacity');
+    const selectFilter = document.getElementById('select-filter');
+    const inputHeader = document.getElementById('input-header');
+    const inputDate = document.getElementById('input-date');
+    const stripHeader = document.getElementById('strip-header');
+    const stripFooterDate = document.getElementById('strip-footer-date');
+    const stripStickers = document.getElementById('strip-stickers');
+    const stickerDisplay = document.getElementById('sticker-display');
+    const photostripPaper = document.getElementById('photostrip-paper');
+    const stripPhotosGrid = document.getElementById('strip-photos-grid');
+    const btnDownload = document.getElementById('download-link') || document.getElementById('btn-download');
+    const btnCopy = document.getElementById('btn-copy');
+
+    // --- Web Audio Synthesizer for Camera Shutter & Countdown Sounds ---
+    let audioCtx = null;
+    function initAudio() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    function playBeepSound(pitch = 600, duration = 0.08) {
+      try {
+        initAudio();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(pitch, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) { /* ignore audio restrictions */ }
+    }
+
+    function playShutterSound() {
+      try {
+        initAudio();
+        // White noise burst for camera shutter click
+        const bufferSize = audioCtx.sampleRate * 0.1;
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+
+        const noise = audioCtx.createBufferSource();
+        noise.buffer = buffer;
+
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'highpass';
+        filter.frequency.value = 1000;
+
+        const gain = audioCtx.createGain();
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioCtx.destination);
+        noise.start();
+      } catch (e) {}
+    }
+
+    // --- 1. Webcam Stream Initialization ---
+    async function setupCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { width: { ideal: 1280 }, height: { ideal: 960 }, facingMode: 'user' },
+          audio: false
+        });
+        video.srcObject = stream;
+        video.onloadedmetadata = () => {
+          cameraLoading.style.display = 'none';
+        };
+      } catch (err) {
+        cameraLoading.innerHTML = `
+          <i data-lucide="alert-circle" class="w-10 h-10 text-red-400"></i>
+          <p class="text-sm font-semibold text-red-300">Kamera Tidak Terdeteksi / Ditolak</p>
+          <p class="text-xs text-gray-400 max-w-xs">Pastikan webcam terpasang dan izinkan akses di peramban kamu.</p>
+        `;
+        lucide.createIcons();
+      }
+    }
+
+    // --- 2. Idol Overlay & Image Fallbacks ---
+    function loadIdolImage(idolKey) {
+      const primaryUrl = IDOL_PATHS[idolKey];
+      const fallbackUrl = IDOL_FALLBACKS[idolKey];
+
+      idolOverlay.onerror = () => {
+        // Switch to SVG fallback if local file doesn't exist
+        idolOverlay.onerror = null;
+        idolOverlay.src = fallbackUrl;
+      };
+      idolOverlay.src = primaryUrl;
+    }
+
+    function selectIdol(idolKey) {
+      state.selectedIdol = idolKey;
+      loadIdolImage(idolKey);
+
+      const tabK = document.getElementById('tab-karina');
+      const tabW = document.getElementById('tab-wonyoung');
+
+      if (idolKey === 'karina') {
+        tabK.className = "flex items-center justify-center gap-2.5 p-3 rounded-xl border border-pink-500/50 bg-pink-500/20 text-white font-medium text-xs sm:text-sm transition hover:bg-pink-500/30";
+        tabW.className = "flex items-center justify-center gap-2.5 p-3 rounded-xl border border-white/10 bg-white/5 text-gray-300 font-medium text-xs sm:text-sm transition hover:bg-white/10";
+        inputHeader.value = "HARU FILM x AESPA";
+      } else {
+        tabW.className = "flex items-center justify-center gap-2.5 p-3 rounded-xl border border-purple-500/50 bg-purple-500/20 text-white font-medium text-xs sm:text-sm transition hover:bg-purple-500/30";
+        tabK.className = "flex items-center justify-center gap-2.5 p-3 rounded-xl border border-white/10 bg-white/5 text-gray-300 font-medium text-xs sm:text-sm transition hover:bg-white/10";
+        inputHeader.value = "HARU FILM x IVE";
+      }
+      stripHeader.textContent = inputHeader.value;
+    }
+
+    // --- 3. Interactive Transform Controls ---
+    function updateTransforms() {
+      idolWrapper.style.width = state.idolScale + 'px';
+      const flipScale = state.idolFlipped ? -1 : 1;
+      idolWrapper.style.transform = `rotate(${state.idolRotate}deg) scaleX(${flipScale})`;
+      idolOverlay.style.opacity = state.idolOpacity;
+
+      valScale.textContent = state.idolScale + 'px';
+      valRotate.textContent = state.idolRotate + '°';
+      valOpacity.textContent = Math.round(state.idolOpacity * 100) + '%';
+    }
+
+    sliderScale.addEventListener('input', (e) => { state.idolScale = parseInt(e.target.value); updateTransforms(); });
+    sliderRotate.addEventListener('input', (e) => { state.idolRotate = parseInt(e.target.value); updateTransforms(); });
+    sliderOpacity.addEventListener('input', (e) => { state.idolOpacity = parseInt(e.target.value) / 100; updateTransforms(); });
+
+    document.getElementById('btn-quick-rotate').addEventListener('click', () => {
+      state.idolRotate = (state.idolRotate + 45) % 360;
+      sliderRotate.value = state.idolRotate;
+      updateTransforms();
+    });
+
+    document.getElementById('btn-quick-flip').addEventListener('click', () => {
+      state.idolFlipped = !state.idolFlipped;
+      updateTransforms();
+    });
+
+    // DRAG & DROP FOR IDOL OVERLAY (Mouse & Touch)
+    let isDragging = false;
+    let startX = 0, startY = 0;
+    let initialLeft = 0, initialTop = 0;
+
+    function onPointerDown(e) {
+      isDragging = true;
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      
+      startX = clientX;
+      startY = clientY;
+      initialLeft = idolWrapper.offsetLeft;
+      initialTop = idolWrapper.offsetTop;
+    }
+
+    function onPointerMove(e) {
+      if (!isDragging) return;
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+      const deltaX = clientX - startX;
+      const deltaY = clientY - startY;
+
+      const bounds = boothContainer.getBoundingClientRect();
+      let newLeft = initialLeft + deltaX;
+      let newTop = initialTop + deltaY;
+
+      // Restrict within boundary margins
+      newLeft = Math.max(-60, Math.min(bounds.width - 60, newLeft));
+      newTop = Math.max(-60, Math.min(bounds.height - 60, newTop));
+
+      idolWrapper.style.left = newLeft + 'px';
+      idolWrapper.style.top = newTop + 'px';
+    }
+
+    function onPointerUp() { isDragging = false; }
+
+    idolWrapper.addEventListener('mousedown', onPointerDown);
+    document.addEventListener('mousemove', onPointerMove);
+    document.addEventListener('mouseup', onPointerUp);
+
+    idolWrapper.addEventListener('touchstart', onPointerDown, { passive: true });
+    document.addEventListener('touchmove', onPointerMove, { passive: true });
+    document.addEventListener('touchend', onPointerUp);
+
+    // --- 4. Camera Controls & Mirroring ---
+    document.getElementById('btn-toggle-mirror').addEventListener('click', () => {
+      state.isMirror = !state.isMirror;
+      if (state.isMirror) {
+        video.classList.add('-scale-x-100');
+      } else {
+        video.classList.remove('-scale-x-100');
+      }
+    });
+
+    document.getElementById('btn-toggle-camera').addEventListener('click', () => {
+      idolWrapper.style.top = '25%';
+      idolWrapper.style.left = '25%';
+      state.idolScale = 180;
+      state.idolRotate = 0;
+      state.idolOpacity = 0.95;
+      state.idolFlipped = false;
+      sliderScale.value = 180;
+      sliderRotate.value = 0;
+      sliderOpacity.value = 95;
+      updateTransforms();
+    });
+
+    // --- 5. Photostrip Customization & Themes ---
+    function setFrameTheme(theme) {
+      state.frameTheme = theme;
+      photostripPaper.className = `bg-frame-${theme} p-3.5 rounded-xl shadow-2xl transition-all duration-300 w-48 sm:w-56 text-center space-y-2.5`;
+    }
+
+    selectFilter.addEventListener('change', (e) => {
+      state.currentFilter = e.target.value;
+      video.className = `w-full h-full object-cover transition-all duration-300 ${state.isMirror ? '-scale-x-100' : ''} filter-${state.currentFilter}`;
+    });
+
+    inputHeader.addEventListener('input', (e) => { stripHeader.textContent = e.target.value || "HARU FILM"; });
+    inputDate.addEventListener('input', (e) => { stripFooterDate.textContent = e.target.value || "2026.10.22"; });
+
+    function addSticker(emoji) {
+      if (state.stickers.length < 5) {
+        state.stickers.push(emoji);
+        updateStickersUI();
+      }
+    }
+
+    function clearStickers() {
+      state.stickers = [];
+      updateStickersUI();
+    }
+
+    function updateStickersUI() {
+      stripStickers.textContent = state.stickers.join(' ');
+      stickerDisplay.textContent = "Stickers: " + (state.stickers.join(' ') || "None");
+    }
+
+    // --- 6. Photo Snapshot Logic & Compositing ---
+    function captureSingleFrame() {
+      const w = 640;
+      const h = 480;
+      const frameCanvas = document.createElement('canvas');
+      frameCanvas.width = w;
+      frameCanvas.height = h;
+      const ctx = frameCanvas.getContext('2d');
+
+      // 1. Filter Style
+      if (state.currentFilter === 'bw') ctx.filter = 'grayscale(100%) contrast(110%)';
+      else if (state.currentFilter === 'warm') ctx.filter = 'sepia(30%) saturate(140%) hue-rotate(-10deg)';
+      else if (state.currentFilter === 'y2k') ctx.filter = 'saturate(160%) contrast(105%) brightness(105%)';
+      else if (state.currentFilter === 'cyber') ctx.filter = 'hue-rotate(290deg) saturate(150%) contrast(110%)';
+      else if (state.currentFilter === 'sepia') ctx.filter = 'sepia(90%) contrast(90%)';
+
+      // 2. Mirroring Webcam Draw
+      ctx.save();
+      if (state.isMirror) {
+        ctx.translate(w, 0);
+        ctx.scale(-1, 1);
+      }
+      ctx.drawImage(video, 0, 0, w, h);
+      ctx.restore();
+      ctx.filter = 'none';
+
+      // 3. Draw Idol Overlay Cutout
+      const boothRect = boothContainer.getBoundingClientRect();
+      const wrapperRect = idolWrapper.getBoundingClientRect();
+
+      // Convert DOM position relative to 640x480 resolution
+      const scaleX = w / boothRect.width;
+      const scaleY = h / boothRect.height;
+
+      const relX = (wrapperRect.left - boothRect.left) * scaleX;
+      const relY = (wrapperRect.top - boothRect.top) * scaleY;
+      const relW = wrapperRect.width * scaleX;
+      const relH = wrapperRect.height * scaleY;
+
+      ctx.save();
+      ctx.globalAlpha = state.idolOpacity;
+      
+      // Pivot translation for rotation & scale
+      const centerX = relX + relW / 2;
+      const centerY = relY + relH / 2;
+      ctx.translate(centerX, centerY);
+      ctx.rotate((state.idolRotate * Math.PI) / 180);
+      if (state.idolFlipped) ctx.scale(-1, 1);
+
+      ctx.drawImage(idolOverlay, -relW / 2, -relH / 2, relW, relH);
+      ctx.restore();
+
+      return frameCanvas;
+    }
+
+    function triggerFlash() {
+      cameraFlash.classList.remove('flash-effect');
+      void cameraFlash.offsetWidth; // reflow trigger
+      cameraFlash.classList.add('flash-effect');
+      playShutterSound();
+    }
+
+    async function runCountdown(seconds) {
+      countdownOverlay.classList.remove('hidden');
+      countdownOverlay.classList.add('flex');
+
+      for (let i = seconds; i > 0; i--) {
+        countdownText.textContent = i;
+        playBeepSound(700, 0.08);
+        await new Promise(r => setTimeout(r, 1000));
+      }
+
+      playBeepSound(1200, 0.15);
+      countdownOverlay.classList.remove('flex');
+      countdownOverlay.classList.add('hidden');
+    }
+
+    // --- 7. 4-Cut Shoot Workflow ---
+    document.getElementById('btn-snap-single').addEventListener('click', async () => {
+      if (state.isShooting) return;
+      state.isShooting = true;
+      document.getElementById('badge-shot-count').textContent = "Taking Single Snapshot...";
+
+      await runCountdown(3);
+      triggerFlash();
+
+      const shot = captureSingleFrame();
+      state.capturedPhotos = [shot, shot, shot, shot]; // duplicate to fill 4 cut
+      renderPhotostripPreview();
+
+      document.getElementById('badge-shot-count').textContent = "Single Photo Ready!";
+      state.isShooting = false;
+    });
+
+    document.getElementById('btn-snap-4cut').addEventListener('click', async () => {
+      if (state.isShooting) return;
+      state.isShooting = true;
+      state.capturedPhotos = [];
+
+      for (let shotIdx = 1; shotIdx <= 4; shotIdx++) {
+        document.getElementById('badge-shot-count').textContent = `Shoot 4-Cut: Foto ${shotIdx} / 4`;
+        countdownSubtext.textContent = `Pose ${shotIdx} / 4 - Bersiap!`;
+
+        await runCountdown(3);
+        triggerFlash();
+
+        const shot = captureSingleFrame();
+        state.capturedPhotos.push(shot);
+        updatePartialPreview(shotIdx - 1, shot);
+
+        if (shotIdx < 4) {
+          await new Promise(r => setTimeout(r, 1200)); // Delay between photos
+        }
+      }
+
+      document.getElementById('badge-shot-count').textContent = "4-Cut Selesai!";
+      renderPhotostripPreview();
+      state.isShooting = false;
+    });
+
+    function updatePartialPreview(index, canvasFrame) {
+      const slots = stripPhotosGrid.querySelectorAll('.slot-img');
+      if (slots[index]) {
+        slots[index].innerHTML = '';
+        const img = document.createElement('img');
+        img.src = canvasFrame.toDataURL('image/png');
+        img.className = 'w-full h-full object-cover rounded-lg shadow-sm';
+        slots[index].appendChild(img);
+      }
+    }
+
+    function renderPhotostripPreview() {
+      const slots = stripPhotosGrid.querySelectorAll('.slot-img');
+      state.capturedPhotos.forEach((canvasFrame, index) => {
+        if (slots[index]) {
+          slots[index].innerHTML = '';
+          const img = document.createElement('img');
+          img.src = canvasFrame.toDataURL('image/png');
+          img.className = 'w-full h-full object-cover rounded-lg shadow-sm';
+          slots[index].appendChild(img);
+        }
+      });
+
+      // Enable Export Buttons
+      btnDownload.disabled = false;
+      btnCopy.disabled = false;
+      document.getElementById('preview-badge').textContent = "Ready to Export";
+      document.getElementById('preview-badge').className = "text-[10px] bg-emerald-500/30 text-emerald-200 px-2 py-0.5 rounded-full border border-emerald-400/30";
+    }
+
+    // --- 8. Canvas Export Generation (PNG Export) ---
+    function renderHighResPhotostrip() {
+      const canvas = exportCanvas;
+      const ctx = canvas.getContext('2d');
+
+      // High Res Dimensions (Vertical Strip)
+      const stripW = 800;
+      const photoW = 720;
+      const photoH = 540; // 4:3
+      const padding = 40;
+      const headerH = 100;
+      const footerH = 100;
+      const gap = 20;
+
+      const stripH = headerH + (photoH * 4) + (gap * 3) + footerH + (padding * 2);
+
+      canvas.width = stripW;
+      canvas.height = stripH;
+
+      // 1. Fill Frame Background Color
+      if (state.frameTheme === 'white') ctx.fillStyle = '#ffffff';
+      else if (state.frameTheme === 'pink') ctx.fillStyle = '#fecfef';
+      else if (state.frameTheme === 'blue') ctx.fillStyle = '#c2e9fb';
+      else if (state.frameTheme === 'mint') ctx.fillStyle = '#8fd3f4';
+      else if (state.frameTheme === 'dark') ctx.fillStyle = '#181824';
+      else if (state.frameTheme === 'rainbow') {
+        const grad = ctx.createLinearGradient(0, 0, stripW, stripH);
+        grad.addColorStop(0, '#ff9a9e');
+        grad.addColorStop(0.3, '#fecfef');
+        grad.addColorStop(0.7, '#a1c4fd');
+        grad.addColorStop(1, '#84fab0');
+        ctx.fillStyle = grad;
+      }
+      ctx.fillRect(0, 0, stripW, stripH);
+
+      // Text color scheme
+      const isDark = state.frameTheme === 'dark';
+      ctx.fillStyle = isDark ? '#ffffff' : '#111111';
+
+      // 2. Draw Header Title
+      ctx.font = 'bold 36px "Space Grotesk", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText((inputHeader.value || "HARU FILM").toUpperCase(), stripW / 2, padding + 60);
+
+      // 3. Draw 4 Photo Cutouts
+      let currentY = padding + headerH;
+      const photoX = (stripW - photoW) / 2;
+
+      for (let i = 0; i < 4; i++) {
+        const frameImg = state.capturedPhotos[i] || state.capturedPhotos[0];
+        if (frameImg) {
+          // Rounded rect clipping for photos
+          ctx.save();
+          ctx.beginPath();
+          ctx.roundRect(photoX, currentY, photoW, photoH, 16);
+          ctx.clip();
+          ctx.drawImage(frameImg, photoX, currentY, photoW, photoH);
+          ctx.restore();
+        }
+        currentY += photoH + gap;
+      }
+
+      // 4. Draw Footer Stickers & Date Stamp
+      currentY = stripH - padding - 30;
+      ctx.font = '28px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(state.stickers.join('   '), stripW / 2, currentY - 30);
+
+      ctx.font = '500 22px monospace';
+      ctx.fillStyle = isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)';
+      ctx.fillText(inputDate.value || "2026.10.22", stripW / 2, currentY);
+
+      return canvas;
+    }
+
+    // Export Actions
+    btnDownload.addEventListener('click', () => {
+      const canvas = renderHighResPhotostrip();
+      const link = document.createElement('a');
+      link.download = `photobooth-harufilm-${Date.now()}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    });
+
+    btnCopy.addEventListener('click', async () => {
+      const canvas = renderHighResPhotostrip();
+      canvas.toBlob(async (blob) => {
+        try {
+          await navigator.clipboard.write([
+            new ClipboardItem({ 'image/png': blob })
+          ]);
+          btnCopy.innerHTML = `<i data-lucide="check" class="w-4 h-4 text-emerald-400"></i><span>Tersalin!</span>`;
+          lucide.createIcons();
+          setTimeout(() => {
+            btnCopy.innerHTML = `<i data-lucide="copy" class="w-4 h-4"></i><span>Salin Gambar</span>`;
+            lucide.createIcons();
+          }, 2000);
+        } catch (e) {
+          alert("Gagal menyalin gambar ke clipboard.");
+        }
+      });
+    });
+
+    // Initialize App
+    window.addEventListener('load', () => {
+      setupCamera();
+      selectIdol('karina');
+      updateTransforms();
+      updateStickersUI();
+    });
+  </script>
+</body>
+</html>
